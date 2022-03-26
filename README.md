@@ -7,6 +7,6 @@
  ### Client
  Creating multiple clients and assigning different ports for each client, and then running the request to server in new task. And then wait for all tasks to finish and display the returned value to the console.
  
- ### Sample Client
+ ### Simple Client
  Just takes in input number from the user and computes the prime factors without threading. 
  
