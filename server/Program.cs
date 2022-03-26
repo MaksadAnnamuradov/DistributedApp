@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -7,12 +8,11 @@ class Server
 {
     static Stopwatch sw = Stopwatch.StartNew();
     static UTF8Encoding encoding = new UTF8Encoding();
+    static readonly ConcurrentDictionary<long, List<long>> CacheDict =
+            new ConcurrentDictionary<long, List<long>>();
     static void Main()
     {
         int requestsPort = 6544;
-        // UdpClient requestsClient = new UdpClient(requestsPort);
-
-
         UdpClient listener = new UdpClient();    //Create a UDPClient object
         {
             listener.ExclusiveAddressUse = false; // Allow multiple clients to connect to the same socket/port
@@ -26,20 +26,40 @@ class Server
         {
             IPEndPoint requester = new IPEndPoint(0, 0);
             byte[] requestData = listener.Receive(ref requester);
-            Console.WriteLine("Received {0} from {1}", encoding.GetString(requestData), requester);
+            string requestString = encoding.GetString(requestData);
+
+            long requestNum = long.Parse(requestString);
+
+            Console.WriteLine("Received {0} from {1}", requestString, requester);
+            //GetOrAdd()
+            // Adds a key/value pair to the ConcurrentDictionary<TKey,TValue> if the key does not already exist. Returns the new value, or the existing value if the key already exists.
 
             // start a thread to respond
             var task = Task.Run(() =>
             {
+                List<long> answer = new List<long>();
+
+                if (CacheDict.ContainsKey(requestString.GetHashCode()))
+                {
+                    Console.WriteLine($"Number was already in cache for {requestNum}");
+                    answer = CacheDict.GetOrAdd(requestString.GetHashCode(), answer);
+                }
+                else //was not added
+                {
+                    Console.WriteLine($"Calling Prime factors and adding {requestNum} to cache");
+                    answer = GetPrimeFactors(requestNum);
+                    CacheDict.GetOrAdd(requestString.GetHashCode(), answer);
+                }
+
                 Console.WriteLine("Starting task at time " + sw.Elapsed);
-                string requestString = encoding.GetString(requestData);
-                long request = long.Parse(requestString);
-                List<long> answer = GetPrimeFactors(request);
+
                 string response = String.Join(',', answer.Select(p => p.ToString()));
+
                 Console.WriteLine("Sending {0} to {1}", response, requester);
                 byte[] responseData = encoding.GetBytes(response);
+
                 UdpClient toClient = new UdpClient();
-                // Console.WriteLine("Sending response to {0} and response is {1}", requester.Address, Encoding.UTF8.GetString(responseData));
+
                 toClient.Send(responseData, responseData.Length, requester);
             });
 

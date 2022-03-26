@@ -8,40 +8,12 @@ namespace Client
 {
     class Program
     {
-        // int PORT = 6544;
-        // UdpClient udpClient = new UdpClient();
         static Random rand = new Random();
-        static int min = 3;
-        static int max = 1000000;
+        static int min = 1;
+        static int max = 10;
         static int numClients = 11;
-        // static int counter = 1;
         static UTF8Encoding encoding = new UTF8Encoding();
-
         static Stopwatch sw = Stopwatch.StartNew();
-
-        // Probabilistically find a prime number within the range [min, max].
-        // static double NextPrime()
-        // {
-        //     // Try random numbers until we find a prime.
-        //     for ( ; ; )
-        //     {
-        //         int p = rand.Next(min, max + 1);
-        //         if (p % 2 == 0) continue;
-
-        //         // See if it's prime.
-        //         if (CheckIfPrime(p)) return p;
-        //     }
-        // }
-
-        // static bool CheckIfPrime(double n) //to check if the random number generated is prime
-        // {
-        //     var sqrt = Math.Sqrt(n);
-        //     for (var i = 2; i <= sqrt; i++){
-        //         if (n % i == 0) return false;
-        //     }
-        //     return true;
-        // }
-
         
         static void setMinThreadPoolThreads(int count)
         {
