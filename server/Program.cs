@@ -26,10 +26,10 @@ class Server
         {
             IPEndPoint requester = new IPEndPoint(0, 0);
             byte[] requestData = listener.Receive(ref requester);
-            Console.WriteLine("Received {0} bytes from {1}", requestData.Length, requester);
+            Console.WriteLine("Received {0} from {1}", encoding.GetString(requestData), requester);
 
             // start a thread to respond
-            Task.Run(() =>
+            var task = Task.Run(() =>
             {
                 Console.WriteLine("Starting task at time " + sw.Elapsed);
                 string requestString = encoding.GetString(requestData);
@@ -39,9 +39,11 @@ class Server
                 Console.WriteLine("Sending {0} to {1}", response, requester);
                 byte[] responseData = encoding.GetBytes(response);
                 UdpClient toClient = new UdpClient();
-                Console.WriteLine("Sending response to {0} and response is {1}", requester.Address, Encoding.UTF8.GetString(responseData));
+                // Console.WriteLine("Sending response to {0} and response is {1}", requester.Address, Encoding.UTF8.GetString(responseData));
                 toClient.Send(responseData, responseData.Length, requester);
             });
+
+            task.Wait();
         }
     }
 
@@ -68,7 +70,7 @@ class Server
                 }
             }
         }
-        Console.WriteLine("Finished after " + sw.Elapsed);
+        Console.WriteLine("Prime factors finished after " + sw.Elapsed);
         return factors;
     }
 

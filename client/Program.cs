@@ -12,34 +12,35 @@ namespace Client
         // UdpClient udpClient = new UdpClient();
         static Random rand = new Random();
         static int min = 3;
-        static int max = 1000;
+        static int max = 1000000;
         static int numClients = 11;
         // static int counter = 1;
+        static UTF8Encoding encoding = new UTF8Encoding();
 
         static Stopwatch sw = Stopwatch.StartNew();
 
         // Probabilistically find a prime number within the range [min, max].
-        static double NextPrime()
-        {
-            // Try random numbers until we find a prime.
-            for ( ; ; )
-            {
-                int p = rand.Next(min, max + 1);
-                if (p % 2 == 0) continue;
+        // static double NextPrime()
+        // {
+        //     // Try random numbers until we find a prime.
+        //     for ( ; ; )
+        //     {
+        //         int p = rand.Next(min, max + 1);
+        //         if (p % 2 == 0) continue;
 
-                // See if it's prime.
-                if (CheckIfPrime(p)) return p;
-            }
-        }
+        //         // See if it's prime.
+        //         if (CheckIfPrime(p)) return p;
+        //     }
+        // }
 
-        static bool CheckIfPrime(double n) //to check if the random number generated is prime
-        {
-            var sqrt = Math.Sqrt(n);
-            for (var i = 2; i <= sqrt; i++){
-                if (n % i == 0) return false;
-            }
-            return true;
-        }
+        // static bool CheckIfPrime(double n) //to check if the random number generated is prime
+        // {
+        //     var sqrt = Math.Sqrt(n);
+        //     for (var i = 2; i <= sqrt; i++){
+        //         if (n % i == 0) return false;
+        //     }
+        //     return true;
+        // }
 
         
         static void setMinThreadPoolThreads(int count)
@@ -69,14 +70,16 @@ namespace Client
             
             int PORT = 6544;
             UdpClient udpClient = new UdpClient();
-            var data = NextPrime();
-            // int data = rand.Next(min, max + 1);
-            udpClient.Send(BitConverter.GetBytes(data), data.ToString().Length, "255.255.255.255", PORT);
+            // var data = NextPrime();
+            int data = rand.Next(min, max + 1);
+            var sendData = encoding.GetBytes(data.ToString());
+            Console.WriteLine("Sending data {0} and byte data {1}", data, sendData);
+            udpClient.Send(sendData, data.ToString().Length, "255.255.255.255", PORT);
 
             var from = new IPEndPoint(0, 0);
             byte[] recvBuffer = udpClient.Receive(ref from);
-            string message = Encoding.UTF8.GetString(recvBuffer);
-            Console.WriteLine("{0} received from {2}", message, from);
+            string message = encoding.GetString(recvBuffer);
+            Console.WriteLine("{0} received from {1}", message, from);
             Console.WriteLine("Task stopping at time " + sw.Elapsed);
         }
         static void Main()
