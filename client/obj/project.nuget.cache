@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "ih0bi9vk346ldnZvO6gpipruE+st9pkHP9VvVm0hoR1WIMrH7CBpbiLwNrGK/QjF30JokkFbMuMpZ68XR/VXvg==",
+  "dgSpecHash": "+cYHVVaLETpy28xBDxvwYjJSsLbjldLHNi2swSIUo072VFZXJJSXKythKWCQ7tyqAm7ZD8cD4p11uGH7rvFy6Q==",
   "success": true,
-  "projectFilePath": "C:\\Users\\maksad\\OneDrive\\2022 Spring\\SE 4620\\app\\client\\client.csproj",
+  "projectFilePath": "C:\\Users\\maksa\\OneDrive\\2022 Spring\\SE 4620\\DistributedApp\\client\\client.csproj",
   "expectedPackageFiles": [],
   "logs": []
 }

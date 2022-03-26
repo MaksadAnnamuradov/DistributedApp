@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\maksad\\OneDrive\\2022 Spring\\SE 4620\\app\\server\\app.csproj": {}
+    "C:\\Users\\maksa\\OneDrive\\2022 Spring\\SE 4620\\DistributedApp\\server\\app.csproj": {}
   },
   "projects": {
-    "C:\\Users\\maksad\\OneDrive\\2022 Spring\\SE 4620\\app\\server\\app.csproj": {
+    "C:\\Users\\maksa\\OneDrive\\2022 Spring\\SE 4620\\DistributedApp\\server\\app.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\maksad\\OneDrive\\2022 Spring\\SE 4620\\app\\server\\app.csproj",
+        "projectUniqueName": "C:\\Users\\maksa\\OneDrive\\2022 Spring\\SE 4620\\DistributedApp\\server\\app.csproj",
         "projectName": "app",
-        "projectPath": "C:\\Users\\maksad\\OneDrive\\2022 Spring\\SE 4620\\app\\server\\app.csproj",
-        "packagesPath": "C:\\Users\\maksad\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\maksad\\OneDrive\\2022 Spring\\SE 4620\\app\\server\\obj\\",
+        "projectPath": "C:\\Users\\maksa\\OneDrive\\2022 Spring\\SE 4620\\DistributedApp\\server\\app.csproj",
+        "packagesPath": "C:\\Users\\maksa\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\maksa\\OneDrive\\2022 Spring\\SE 4620\\DistributedApp\\server\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\maksad\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\maksa\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -54,7 +54,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.201\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.102\\RuntimeIdentifierGraph.json"
         }
       }
     }
