@@ -20,7 +20,6 @@ class Server
         listener.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true); // Connect even if socket/port is in use
 
         listener.Client.Bind(new IPEndPoint(IPAddress.Any, requestsPort));
-        // IPEndPoint requester = new IPEndPoint(IPAddress.Any, requestsPort);   //Start receiving data from any IP listening on port 5606 (port for PCARS2)
 
         while (true)
         {
@@ -31,6 +30,7 @@ class Server
             long requestNum = long.Parse(requestString);
 
             Console.WriteLine("Received {0} from {1}", requestString, requester);
+
             //GetOrAdd()
             // Adds a key/value pair to the ConcurrentDictionary<TKey,TValue> if the key does not already exist. Returns the new value, or the existing value if the key already exists.
 
