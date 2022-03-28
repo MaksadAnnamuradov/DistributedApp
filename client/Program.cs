@@ -9,9 +9,9 @@ namespace Client
     class Program
     {
         static Random rand = new Random();
-        static int min = 1;
-        static int max = 10;
-        static int numClients = 11;
+        static long min = 1000000;
+        static long max = 100000000;
+        static int numClients = 100;
         static UTF8Encoding encoding = new UTF8Encoding();
         static Stopwatch sw = Stopwatch.StartNew();
         
@@ -43,7 +43,7 @@ namespace Client
             int PORT = 6544;
             UdpClient udpClient = new UdpClient();
             // var data = NextPrime();
-            int data = rand.Next(min, max + 1);
+            long data = rand.NextInt64(min, max + 1);
             var sendData = encoding.GetBytes(data.ToString());
             Console.WriteLine("Sending data {0} and byte data {1}", data, sendData);
             udpClient.Send(sendData, data.ToString().Length, "255.255.255.255", PORT);
