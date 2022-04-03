@@ -11,7 +11,7 @@ namespace Client
         static Random rand = new Random();
         static long min = 1000000;
         static long max = 100000000;
-        static int numClients = 100;
+        static int numClients = 10;
         static UTF8Encoding encoding = new UTF8Encoding();
         static Stopwatch sw = Stopwatch.StartNew();
         
