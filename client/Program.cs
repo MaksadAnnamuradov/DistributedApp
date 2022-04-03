@@ -45,7 +45,7 @@ namespace Client
             // var data = NextPrime();
             long data = rand.NextInt64(min, max + 1);
             var sendData = encoding.GetBytes(data.ToString());
-            Console.WriteLine("Sending data {0} and byte data {1}", data, sendData);
+            Console.WriteLine("Sending data {0} to server {1}", data, PORT);
             udpClient.Send(sendData, data.ToString().Length, "255.255.255.255", PORT);
 
             var from = new IPEndPoint(0, 0);
