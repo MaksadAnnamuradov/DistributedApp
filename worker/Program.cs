@@ -13,60 +13,43 @@ class Worker
 
     // create a list of states
     static string workerState = "free";
+    static int SERVER_PORT = 6544;
     
     static void Main()
     {
+        UdpClient workerClient = new UdpClient();
+
+
+        var sendData = encoding.GetBytes("free");
+        Console.WriteLine("Sending {0} state to the server", workerState);
+        workerClient.Send(sendData, sendData.Length, "255.255.255.255", SERVER_PORT);
+
         while (true)
         {
-
-            
-
-            int PORT = 6555;
-            int workerResponsePort = 6566;
-
-            UdpClient udpClient = new UdpClient();
-
-            udpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true); // Connect even if socket/port is in use
-
-            udpClient.Client.Bind(new IPEndPoint(0, 0));
+            IPEndPoint requester = new IPEndPoint(0, 0);
 
             //wait for a message from the server
-            // var from = new IPEndPoint(0, 0);
-            // byte[] recvBuffer = udpClient.Receive(ref from);
-            // string message = encoding.GetString(recvBuffer);
-            // Console.WriteLine("{0} received from {1}", message, from);
-            
-            var from = new IPEndPoint(0, 0);
+            byte[] recvBuffer = workerClient.Receive(ref requester);
 
-        
-            if(workerState == "free")
-            {
-                var sendData = encoding.GetBytes("free");
-                Console.WriteLine("Sending {0} state to the server", workerState);
-                udpClient.Send(sendData, sendData.Length, "255.255.255.255", PORT);
-
-                //wait for a message from the server
-                byte[] recvBuffer = udpClient.Receive(ref from);
+            Task.Run(()=>{
                 string message = encoding.GetString(recvBuffer);
-                Console.WriteLine("{0} received from server {1}", message, from);
-
+                Console.WriteLine("{0} received from server {1}", message, requester);
 
                 long requestNum = long.Parse(message);
-                workerState = "busy";
-
                 
                 //call getPrimeFactors
                 var answer = GetPrimeFactors(requestNum);
 
                 string response = String.Join(',', answer.Select(p => p.ToString()));
 
-                Console.WriteLine("Sending {0} to server {1}", response, workerResponsePort);
+                Console.WriteLine("Sending {0} to server {1}", response, requester);
                 byte[] responseData = encoding.GetBytes(response);
                 UdpClient toClient = new UdpClient();
-                toClient.Send(responseData, responseData.Length, "225.255.255.255", workerResponsePort);
+                toClient.Send(sendData, sendData.Length, requester);
 
-                workerState = "free";
-            }
+            });
+       
+          
             // else{
             //     string response = workerState;
 
