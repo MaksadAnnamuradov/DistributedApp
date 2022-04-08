@@ -10,13 +10,16 @@ class Server
     static UTF8Encoding encoding = new UTF8Encoding();
     static readonly ConcurrentDictionary<long, List<long>> CacheDict =
             new ConcurrentDictionary<long, List<long>>();
-    static Queue<IPEndPoint> workersQueue = new Queue<IPEndPoint>();
+    static List<IPEndPoint> workersList = new List<IPEndPoint>();
     static void Main()
     {
         int serverPort = 6544;
-        UdpClient serverReceiver = new UdpClient();    //Create a UDPClient object
-        serverReceiver.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true); // Connect even if socket/port is in use
-        serverReceiver.Client.Bind(new IPEndPoint(IPAddress.Any, serverPort));
+
+         int workerPort = 6555;
+
+        UdpClient serverReceiver = new UdpClient(serverPort);    //Create a UDPClient object
+        //serverReceiver.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true); // Connect even if socket/port is in use
+        //serverReceiver.Client.Bind(new IPEndPoint(IPAddress.Any, serverPort));
 
         while (true)
         {
@@ -31,16 +34,19 @@ class Server
                 Console.WriteLine("Received {0} from worker {1}", requestString, requester);
                 Task.Run(()=>{
                     Console.WriteLine("Adding worker {0} to queue", requester);
-                    workersQueue.Enqueue(requester);
+                    workersList.Add(requester);
                 });
             }
             else
             {
-                UdpClient serverSender = new UdpClient();
 
-                List<long> answer = new List<long>();
                
                 Task.Run(()=>{
+
+                    UdpClient jobClient = new UdpClient();
+                    List<long> answer = new List<long>();
+
+
                     if (CacheDict.ContainsKey(requestString.GetHashCode()))
                     {
                         Console.WriteLine($"Number was already in cache for {requestString}");
@@ -51,20 +57,22 @@ class Server
                         Console.WriteLine("Sending {0} to client {1}", response, requester);
                         byte[] responseData = encoding.GetBytes(response);
 
-                        serverSender.Send(responseData, responseData.Length, requester);
+                        jobClient.Send(responseData, responseData.Length, requester);
            
                     }
                     else //was not added
                     {
-                        var freeWorker = workersQueue.Dequeue();
-                        Console.WriteLine($"Free workers: {workersQueue.Count}");
+                        var freeWorker = workersList[0];
+                        Console.WriteLine($"Free workers: {workersList.Count}");
 
                         Console.WriteLine("Sending {0} to worker {1}", requestString, freeWorker);
                     
-                        serverSender.Send(requestData, requestData.Length, freeWorker);
+                        jobClient.Send(requestData, requestData.Length, freeWorker);
+
+                        IPEndPoint responder = new IPEndPoint(0, 0);
 
                         //wait for a message from the worker
-                        byte[] workerResponse = serverReceiver.Receive(ref freeWorker);
+                        byte[] workerResponse = jobClient.Receive(ref responder);
                         string workerResponseString = encoding.GetString(workerResponse);
 
                         Console.WriteLine("{0} received from worker {1}", workerResponseString, freeWorker);
@@ -78,7 +86,7 @@ class Server
                         Console.WriteLine("Sending {0} to client {1}", response, requester);
                         byte[] responseData = encoding.GetBytes(response);
 
-                        serverSender.Send(responseData, responseData.Length, requester);
+                        serverReceiver.Send(responseData, responseData.Length, requester);
                     }
                 });
             }

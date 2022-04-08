@@ -22,7 +22,7 @@ class Worker
 
         var sendData = encoding.GetBytes("free");
         Console.WriteLine("Sending {0} state to the server", workerState);
-        workerClient.Send(sendData, sendData.Length, "255.255.255.255", SERVER_PORT);
+        workerClient.Send(sendData, sendData.Length, new IPEndPoint(0, SERVER_PORT));
 
         while (true)
         {
@@ -44,6 +44,7 @@ class Worker
 
                 Console.WriteLine("Sending {0} to server {1}", response, requester);
                 byte[] responseData = encoding.GetBytes(response);
+
                 UdpClient toClient = new UdpClient();
                 toClient.Send(sendData, sendData.Length, requester);
 
