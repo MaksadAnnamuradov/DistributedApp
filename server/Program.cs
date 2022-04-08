@@ -15,33 +15,46 @@ class Server
     {
         int serverPort = 6544;
 
-         int workerPort = 6555;
+        int workerPort = 6555;
 
-        UdpClient serverReceiver = new UdpClient(serverPort);    //Create a UDPClient object
+        //Create a UDPClient object
         //serverReceiver.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true); // Connect even if socket/port is in use
         //serverReceiver.Client.Bind(new IPEndPoint(IPAddress.Any, serverPort));
 
-        while (true)
+        var workerTask = Task.Run(() =>
         {
+            UdpClient workerReceiver = new UdpClient(workerPort);
 
-            IPEndPoint requester = new IPEndPoint(0, 0);
-            byte[] requestData = serverReceiver.Receive(ref requester);
-            string requestString = encoding.GetString(requestData);
-
-
-            if(requestString.Contains("free"))
+            while (true)
             {
-                Console.WriteLine("Received {0} from worker {1}", requestString, requester);
-                Task.Run(()=>{
-                    Console.WriteLine("Adding worker {0} to queue", requester);
-                    workersList.Add(requester);
-                });
+
+                IPEndPoint newWorker = new IPEndPoint(0, 0);
+                byte[] requestData = workerReceiver.Receive(ref newWorker);
+                string requestString = encoding.GetString(requestData);
+
+
+                if (requestString.Contains("free"))
+                {
+                    Console.WriteLine("Received {0} from worker {1}", requestString, newWorker);
+                    Console.WriteLine("Adding worker {0} to queue", newWorker);
+                    workersList.Add(newWorker);
+                }
             }
-            else
+        });
+
+        var clientTask = Task.Run(() =>
+        {
+            UdpClient clientReceiver = new UdpClient(serverPort);
+
+            while (true)
             {
 
-               
-                Task.Run(()=>{
+                IPEndPoint newClient = new IPEndPoint(0, 0);
+                byte[] requestData = clientReceiver.Receive(ref newClient);
+                string requestString = encoding.GetString(requestData);
+
+                Task.Run(() =>
+                {
 
                     UdpClient jobClient = new UdpClient();
                     List<long> answer = new List<long>();
@@ -54,11 +67,11 @@ class Server
 
                         string response = String.Join(',', answer.Select(p => p.ToString()));
 
-                        Console.WriteLine("Sending {0} to client {1}", response, requester);
+                        Console.WriteLine("Sending {0} to client {1}", response, newClient);
                         byte[] responseData = encoding.GetBytes(response);
 
-                        jobClient.Send(responseData, responseData.Length, requester);
-           
+                        jobClient.Send(responseData, responseData.Length, newClient);
+
                     }
                     else //was not added
                     {
@@ -66,7 +79,7 @@ class Server
                         Console.WriteLine($"Free workers: {workersList.Count}");
 
                         Console.WriteLine("Sending {0} to worker {1}", requestString, freeWorker);
-                    
+
                         jobClient.Send(requestData, requestData.Length, freeWorker);
 
                         IPEndPoint responder = new IPEndPoint(0, 0);
@@ -83,17 +96,23 @@ class Server
 
                         string response = String.Join(',', answer.Select(p => p.ToString()));
 
-                        Console.WriteLine("Sending {0} to client {1}", response, requester);
+                        Console.WriteLine("Sending {0} to client {1}", response, newClient);
                         byte[] responseData = encoding.GetBytes(response);
 
-                        serverReceiver.Send(responseData, responseData.Length, requester);
+                        clientReceiver.Send(responseData, responseData.Length, newClient);
                     }
                 });
+
+
             }
-       
-        }
+
+            
+        });
+
+        Task.WaitAll(clientTask, workerTask);
+
     }
 
-   
+
 
 }

@@ -13,7 +13,7 @@ class Worker
 
     // create a list of states
     static string workerState = "free";
-    static int SERVER_PORT = 6544;
+    static int SERVER_PORT = 6555;
     
     static void Main()
     {
@@ -22,7 +22,9 @@ class Worker
 
         var sendData = encoding.GetBytes("free");
         Console.WriteLine("Sending {0} state to the server", workerState);
-        workerClient.Send(sendData, sendData.Length, new IPEndPoint(0, SERVER_PORT));
+
+        
+        workerClient.Send(sendData, sendData.Length, "127.0.0.1", SERVER_PORT);
 
         while (true)
         {
@@ -46,7 +48,7 @@ class Worker
                 byte[] responseData = encoding.GetBytes(response);
 
                 UdpClient toClient = new UdpClient();
-                toClient.Send(sendData, sendData.Length, requester);
+                toClient.Send(responseData, responseData.Length, requester);
 
             });
        
