@@ -22,7 +22,6 @@ class Worker
 
         var sendData = encoding.GetBytes("free");
         Console.WriteLine("Sending {0} state to the server", workerState);
-
         
         workerClient.Send(sendData, sendData.Length, "127.0.0.1", SERVER_PORT);
 
