@@ -13,13 +13,16 @@ class Server
     static List<IPEndPoint> workersList = new List<IPEndPoint>();
     static void Main()
     {
-        int serverPort = 6544;
+        //int serverPort = 6544;
 
         int workerPort = 6555;
 
-        //Create a UDPClient object
-        //serverReceiver.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true); // Connect even if socket/port is in use
-        //serverReceiver.Client.Bind(new IPEndPoint(IPAddress.Any, serverPort));
+        int distributorPort = 6544;
+
+        //add server to distributor
+        UdpClient factClient = new UdpClient();
+        var sendData = encoding.GetBytes("factServer-add");
+        factClient.Send(sendData, sendData.Length, "127.0.0.1", distributorPort);
 
         var workerTask = Task.Run(() =>
         {
@@ -42,15 +45,13 @@ class Server
             }
         });
 
-        var clientTask = Task.Run(() =>
+        var distributorTask = Task.Run(() =>
         {
-            UdpClient clientReceiver = new UdpClient(serverPort);
-
+    
             while (true)
             {
-
-                IPEndPoint newClient = new IPEndPoint(0, 0);
-                byte[] requestData = clientReceiver.Receive(ref newClient);
+                IPEndPoint distRequester = new IPEndPoint(0, 0);
+                byte[] requestData = factClient.Receive(ref distRequester);
                 string requestString = encoding.GetString(requestData);
 
                 Task.Run(() =>
@@ -59,7 +60,6 @@ class Server
                     UdpClient jobClient = new UdpClient();
                     List<long> answer = new List<long>();
 
-
                     if (CacheDict.ContainsKey(requestString.GetHashCode()))
                     {
                         Console.WriteLine($"Number was already in cache for {requestString}");
@@ -67,10 +67,10 @@ class Server
 
                         string response = String.Join(',', answer.Select(p => p.ToString()));
 
-                        Console.WriteLine("Sending {0} to client {1}", response, newClient);
+                        Console.WriteLine("Sending {0} to client {1}", response, distRequester);
                         byte[] responseData = encoding.GetBytes(response);
 
-                        jobClient.Send(responseData, responseData.Length, newClient);
+                        jobClient.Send(responseData, responseData.Length, distRequester);
 
                     }
                     else //was not added
@@ -96,10 +96,10 @@ class Server
 
                         string response = String.Join(',', answer.Select(p => p.ToString()));
 
-                        Console.WriteLine("Sending {0} to client {1}", response, newClient);
+                        Console.WriteLine("Sending {0} to distributor {1}", response, distRequester);
                         byte[] responseData = encoding.GetBytes(response);
 
-                        clientReceiver.Send(responseData, responseData.Length, newClient);
+                        factClient.Send(responseData, responseData.Length, distRequester);
                     }
                 });
 
@@ -109,7 +109,7 @@ class Server
             
         });
 
-        Task.WaitAll(clientTask, workerTask);
+        Task.WaitAll(distributorTask, workerTask);
 
     }
 

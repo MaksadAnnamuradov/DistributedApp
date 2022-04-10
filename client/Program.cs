@@ -40,13 +40,13 @@ namespace Client
         {
             Console.WriteLine("Task starting at time " + sw.Elapsed);
             
-            int SERVER_PORT = 6544;
+            int DIST_PORT = 6533;
             UdpClient udpClient = new UdpClient();
-            // var data = NextPrime();
             long data = rand.NextInt64(min, max + 1);
-            var sendData = encoding.GetBytes(data.ToString());
-            Console.WriteLine("Sending data {0} to server {1}", data, SERVER_PORT);
-            udpClient.Send(sendData, data.ToString().Length, "127.0.0.1", SERVER_PORT);
+            string dataString = "factServer-" + data.ToString();
+            var sendData = encoding.GetBytes(dataString);
+            Console.WriteLine("Sending data {0} to server {1}", dataString, DIST_PORT);
+            udpClient.Send(sendData, dataString.ToString().Length, "127.0.0.1", DIST_PORT);
 
             var from = new IPEndPoint(0, 0);
             byte[] recvBuffer = udpClient.Receive(ref from);

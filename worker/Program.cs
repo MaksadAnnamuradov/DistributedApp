@@ -18,8 +18,6 @@ class Worker
     static void Main()
     {
         UdpClient workerClient = new UdpClient();
-
-
         var sendData = encoding.GetBytes("free");
         Console.WriteLine("Sending {0} state to the server", workerState);
         
