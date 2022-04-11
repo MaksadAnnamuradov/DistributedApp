@@ -30,13 +30,15 @@ namespace Client
 
              var tasks = new List<Task>();
 
+            // for (int i = 0; i < numClients; ++i)
+            //     tasks.Add(Task.Run(new Action(clientFactTask)));
             for (int i = 0; i < numClients; ++i)
-                tasks.Add(Task.Run(new Action(clientTask)));
+                tasks.Add(Task.Run(new Action(clientNSTask)));
 
             await Task.WhenAll(tasks);
         }
 
-        static void clientTask()
+        static void clientFactTask()
         {
             Console.WriteLine("Task starting at time " + sw.Elapsed);
             
@@ -44,6 +46,38 @@ namespace Client
             UdpClient udpClient = new UdpClient();
             long data = rand.NextInt64(min, max + 1);
             string dataString = "factServer-" + data.ToString();
+            var sendData = encoding.GetBytes(dataString);
+            Console.WriteLine("Sending data {0} to server {1}", dataString, DIST_PORT);
+            udpClient.Send(sendData, dataString.ToString().Length, "127.0.0.1", DIST_PORT);
+
+            var from = new IPEndPoint(0, 0);
+            byte[] recvBuffer = udpClient.Receive(ref from);
+            string message = encoding.GetString(recvBuffer);
+            Console.WriteLine("{0} received from {1}", message, from);
+            Console.WriteLine("Task stopping at time " + sw.Elapsed);
+        }
+
+         static void clientNSTask()
+        {
+            Console.WriteLine("Task starting at time " + sw.Elapsed);
+
+            //create a list of random names
+            var names = new List<string>(){"Adam", "Max", "Tanner"};
+            var rand = new Random();
+            var randName = names[rand.Next(names.Count)];
+
+            var permutate = rand.Next(10);
+            
+            int DIST_PORT = 6533;
+            UdpClient udpClient = new UdpClient();
+            long data = rand.NextInt64(min, max + 1);
+
+            string dataString = "nameServer-" + randName;
+
+            if(permutate % 2 == 0){
+                dataString = "nameServer-" + randName + ":" + data.ToString();
+            }
+            
             var sendData = encoding.GetBytes(dataString);
             Console.WriteLine("Sending data {0} to server {1}", dataString, DIST_PORT);
             udpClient.Send(sendData, dataString.ToString().Length, "127.0.0.1", DIST_PORT);
