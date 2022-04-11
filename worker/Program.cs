@@ -14,13 +14,28 @@ class Worker
     // create a list of states
     static string workerState = "free";
     static int SERVER_PORT = 6555;
-    
-    static void Main()
+
+    static int numWorkers = 5;
+
+    static async Task runTasks()
+    {
+        var sw = Stopwatch.StartNew();
+        Console.WriteLine("\nStarting tasks.");
+
+        var tasks = new List<Task>();
+
+        for (int i = 0; i < numWorkers; ++i)
+            tasks.Add(Task.Run(new Action(workerTask)));
+
+        await Task.WhenAll(tasks);
+    }
+
+    static void workerTask()
     {
         UdpClient workerClient = new UdpClient();
         var sendData = encoding.GetBytes("free");
         Console.WriteLine("Sending {0} state to the server", workerState);
-        
+
         workerClient.Send(sendData, sendData.Length, "127.0.0.1", SERVER_PORT);
 
         while (true)
@@ -30,12 +45,13 @@ class Worker
             //wait for a message from the server
             byte[] recvBuffer = workerClient.Receive(ref requester);
 
-            Task.Run(()=>{
+            Task.Run(() =>
+            {
                 string message = encoding.GetString(recvBuffer);
                 Console.WriteLine("{0} received from server {1}", message, requester);
 
                 long requestNum = long.Parse(message);
-                
+
                 //call getPrimeFactors
                 var answer = GetPrimeFactors(requestNum);
 
@@ -48,8 +64,8 @@ class Worker
                 toClient.Send(responseData, responseData.Length, requester);
 
             });
-       
-          
+
+
             // else{
             //     string response = workerState;
 
@@ -61,8 +77,13 @@ class Worker
             // }
         }
     }
+    static void Main()
+    {
+        var tasks = runTasks();
+        tasks.Wait();
+    }
 
-     static List<long> GetPrimeFactors(long product)
+    static List<long> GetPrimeFactors(long product)
     {
         var sw = Stopwatch.StartNew();
         Console.WriteLine("Getting Prime factors for {0}", product);

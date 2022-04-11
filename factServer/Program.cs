@@ -1,10 +1,11 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
-class Server
+class FactServer
 {
     static Stopwatch sw = Stopwatch.StartNew();
     static UTF8Encoding encoding = new UTF8Encoding();
@@ -75,7 +76,9 @@ class Server
                     }
                     else //was not added
                     {
-                        var freeWorker = workersList[0];
+                        var random = new Random();
+                        int index = random.Next(workersList.Count);
+                        var freeWorker = workersList[index];
                         Console.WriteLine($"Free workers: {workersList.Count}");
 
                         Console.WriteLine("Sending {0} to worker {1}", requestString, freeWorker);
