@@ -1,1 +1,0 @@
-for i in {1..5}; do dotnet run; done
